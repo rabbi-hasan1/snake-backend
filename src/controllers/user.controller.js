@@ -131,3 +131,25 @@ export const refreshToken = asyncHandler(async (req, res) => {
     .cookie("refreshToken", newRefreshToken, cookieOptions)
     .json(new apiResponse(200, {}, "token refreshed successfully"));
 });
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { newPassword, oldPassword } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new ApiError(400, "validation faild");
+  }
+  const user = await User.findById(req?.user?.id).select("+password");
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  const isPasswordCorrect = await user.comparePassword(oldPassword);
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "old password is not correct");
+  }
+  user.password = newPassword;
+  await user.save();
+  return res
+    .status(200)
+    .json(new apiResponse(200, {}, "password updated successfully"));
+});

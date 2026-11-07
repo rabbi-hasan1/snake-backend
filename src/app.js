@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import rateLimit from "express-rate-limit";
 import userRouter from "./routes/user.route.js";
 import errorHandler from "./utils/globalErrorHandler.js";
+import snakeRouter from "./routes/snake.route.js";
 dotenv.config();
 const app = express();
 const limiter = rateLimit({
@@ -37,5 +38,9 @@ app.get("/health", (req, res) => {
 
 //user Routes
 app.use("/api/v2/auth", userRouter);
+
+//Snake Routes
+app.use("/api/v2", snakeRouter);
+
 app.use(errorHandler);
 export default app;
