@@ -1,7 +1,16 @@
 import { Router } from "express";
-import { changePassword, getUserProfile, loginUser, logoutUser, refreshToken, registerUser } from "../controllers/user.controller.js";
+import {
+  changePassword,
+  changeUserName,
+  getAllUser,
+  getUserProfile,
+  loginUser,
+  logoutUser,
+  refreshToken,
+  registerUser,
+} from "../controllers/user.controller.js";
 import { body } from "express-validator";
-import { upload } from './../middlewares/multer.middleware.js';
+import { upload } from "./../middlewares/multer.middleware.js";
 import { checkAuth } from "../middlewares/auth.middleware.js";
 
 const userValidation = [
@@ -22,11 +31,12 @@ const userValidation = [
     .withMessage("Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters")
-    .isLength({max:120}).withMessage("the max length of password is 120")
+    .isLength({ max: 120 })
+    .withMessage("the max length of password is 120"),
 ];
 
 const loginValidation = [
-    body("email")
+  body("email")
     .trim()
     .notEmpty()
     .withMessage("email is must be required")
@@ -37,32 +47,58 @@ const loginValidation = [
     .withMessage("Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters")
-    .isLength({max:120}).withMessage("the max length of password is 120")
-]
+    .isLength({ max: 120 })
+    .withMessage("the max length of password is 120"),
+];
 
 const passwordValidation = [
-   body("oldPassword")
+  body("oldPassword")
     .notEmpty()
     .withMessage("old Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters")
-    .isLength({max:120}).withMessage("the max length of password is 120"),
+    .isLength({ max: 120 })
+    .withMessage("the max length of password is 120"),
 
-   body("newPassword")
+  body("newPassword")
     .notEmpty()
     .withMessage("new Password is required")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters")
-    .isLength({max:120}).withMessage("the max length of password is 120")
-
-
+    .isLength({ max: 120 })
+    .withMessage("the max length of password is 120"),
 ];
 
 const userRouter = Router();
-userRouter.post("/register", upload.single("profilePhoto") ,userValidation, registerUser);
-userRouter.post("/login", loginValidation, loginUser );
+userRouter.post(
+  "/register",
+  upload.single("profilePhoto"),
+  userValidation,
+  registerUser
+);
+userRouter.post("/login", loginValidation, loginUser);
 userRouter.get("/logout", checkAuth, logoutUser);
 userRouter.get("/refreshToken", checkAuth, refreshToken);
 userRouter.get("/me", checkAuth, getUserProfile);
-userRouter.put("/update-password", passwordValidation, checkAuth,  changePassword);
+userRouter.put(
+  "/update-password",
+  passwordValidation,
+  checkAuth,
+  changePassword
+);
+userRouter.put(
+  "/update-username",
+  [
+    body("username")
+      .trim()
+      .notEmpty()
+      .withMessage("username is must be required")
+      .isLength({ min: 3, max: 125 })
+      .withMessage("username must be 3-125 characters"),
+  ],
+  checkAuth,
+  changeUserName
+);
+
+userRouter.get("/users", checkAuth, getAllUser);
 export default userRouter;

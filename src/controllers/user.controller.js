@@ -153,3 +153,30 @@ export const changePassword = asyncHandler(async (req, res) => {
     .status(200)
     .json(new apiResponse(200, {}, "password updated successfully"));
 });
+
+export const changeUserName = asyncHandler(async (req, res) => {
+  const { username } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    throw new ApiError(400, "validation faild", errors?.array());
+  }
+  const user = await User.findOneAndUpdate(
+    { _id: req?.user?.id },
+    { $set: { username } },
+    { new: true, runValidators: true }
+);
+  if (!user) {
+    throw new ApiError(401, "user not found");
+  }
+  return res
+    .status(200)
+    .json(new apiResponse(200, {}, "username udateted successfully"));
+});
+
+export const getAllUser = asyncHandler(async (req, res) => {
+  const user = await User.find().lean().select("-password");
+  if (!user) {
+    throw new ApiError(404,"no user found");
+  }
+  return res.status(200).json(new apiResponse(200, user, "user fetched successfully"));
+})
